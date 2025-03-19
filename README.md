@@ -1,7 +1,5 @@
 # osteoporosis-diagnosis-app
 streamlit
-numpy
-pandas
-tensorflow
-joblib
+random
+time
 Pillow
