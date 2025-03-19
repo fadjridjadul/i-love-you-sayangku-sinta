@@ -1,7 +1,7 @@
 # osteoporosis-diagnosis-app
-tensorflow
 streamlit
 numpy
 pandas
+tensorflow
 joblib
 Pillow
