@@ -1,7 +1,6 @@
 # osteoporosis-diagnosis-app
-streamlit
 numpy
 pandas
-tensorflow-cpu==2.9.0
+tensorflow
 joblib
 Pillow
