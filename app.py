@@ -1,3 +1,6 @@
+import os
+os.system('pip install tensorflow==2.9.0')
+
 import streamlit as st
 import numpy as np
 import tensorflow as tf
@@ -5,6 +8,8 @@ from tensorflow.keras.preprocessing.image import load_img, img_to_array
 import joblib
 import pandas as pd
 from io import BytesIO
+
+
 
 # **Fungsi untuk memuat model deep learning**
 @st.cache_resource
