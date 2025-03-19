@@ -1,145 +1,103 @@
 import streamlit as st
-import numpy as np
-import tensorflow as tf
-from tensorflow.keras.preprocessing.image import load_img, img_to_array
-import joblib
-import pandas as pd
-from io import BytesIO
+import random
+import time
+from PIL import Image
 
+# Daftar Gombalan
+gombalan_list = [
+    "Sayangku, kalau kamu jadi matahari, aku rela jadi planet yang terus mengelilingimu.",
+    "Cintaku, kamu tahu bedanya kamu sama bintang? Bintang bersinar di langit, tapi kamu bersinar di hatiku.",
+    "Manisku, kalau kamu senyum, aku lupa semua masalah. Jadi, senyum terus ya!",
+    "Sayang wkwkwk, aku gak butuh kompas, karena hatiku selalu tertuju padamu.",
+    "Kasihku, kalau cinta adalah bahasa, aku ingin menjadi kata yang selalu kamu ucapkan.",
+    "Bidadariku, aku gak butuh Google Maps, karena arah terbaik selalu menuju hatimu.",
+    "Sayang, aku rela jadi hujan kalau itu bisa membuatmu tersenyum saat melihat pelangi.",
+    "Sayangku tersayang, kalau aku jadi hujan, aku ingin turun di hatimu agar bisa menemanimu setiap saat.",
+    "Manisku, seperti WiFi, cintaku ke kamu full bar dan gak bakal putus!",
+    "Cintaku, kalau kamu jadi lagu, aku mau jadi liriknya, supaya kita selalu bersama.",
+    "Sayangku yang paling cantik, kamu kayak kopi pagi, selalu bikin hariku semangat!",
+    "Sayangku, kamu itu seperti password WiFi, tanpa kamu hidupku terasa kosong.",
+    "Honey, kamu gak perlu jadi artis, karena di hatiku kamu sudah jadi bintang paling bersinar.",
+    "Pelangi hatiku, kalau aku punya satu permintaan, aku ingin habiskan sisa hidup bersamamu.",
+    "Cintaku yang paling manis, meskipun jarak memisahkan kita, hatiku selalu dekat sama kamu.",
+    "Beb, setiap detik yang aku lewati tanpamu terasa seperti setahun lamanya.",
+    "Sayang sayang sayang, aku suka kamu bukan karena kamu sempurna, tapi karena kamu adalah yang terbaik untukku.",
+    "Cintaku, kalau aku bisa memilih siapa yang ada di mimpiku setiap malam, aku akan selalu memilih kamu.",
+    "Kasihku, kamu tahu bedanya kamu sama es krim? Es krim mencair di mulut, tapi kamu mencairkan hatiku.",
+    "Baby, setiap kali aku melihatmu, aku merasa seperti ketemu bintang jatuh.",
+    "Cintaku yang tak tergantikan, kalau cinta adalah perjalanan, aku ingin berjalan bersamamu selamanya.",
+    "Sayangku yang lucu, kamu kayak film favoritku, selalu ingin aku tonton setiap hari.",
+    "Manisku, kalau kamu jadi bunga, aku akan jadi lebah yang selalu mencari madumu.",
+    "Cintaku sayang, setiap detak jantungku adalah lagu yang bernada namamu.",
+    "Bebeb, kamu itu ibarat udara, aku gak bisa hidup tanpamu.",
+    "Bidadariku yang menawan, kalau aku bisa jadi apa saja, aku mau jadi alasan senyummu.",
+    "Kesayangan aku, kalau aku adalah pelaut, kamu adalah mercusuar yang selalu menunjukkan jalan pulang.",
+    "Cintaku, kalau waktu bisa berhenti, aku ingin menghabiskannya bersamamu selamanya.",
+    "Sayang, kalau kamu jadi air, aku rela tenggelam dalam cintamu.",
+    "Honey Bunny, setiap kali aku mendengar namamu, hatiku langsung berdebar kayak kembang api",
+]
 
+def show_gombalan():
+    gombal = random.choice(gombalan_list)
+    st.subheader(":heart: Gombalan Spesial untuk Sayangku :heart:")
+    st.success(gombal)
 
-# **Fungsi untuk memuat model deep learning**
-@st.cache_resource
-def load_model():
-    return tf.keras.models.load_model("osteoporosis_dual_target_model.h5")
-
-# **Fungsi untuk memuat preprocessor tabular**
-@st.cache_resource
-def load_preprocessor():
-    return joblib.load("tabular_preprocessor_dual_target.pkl")
-
-# **Fungsi untuk mengklasifikasikan T-score**
-def classify_t_score(t_score):
-    if t_score <= -2.5:
-        return "Osteoporosis", "#e74c3c"  # Merah
-    elif -2.5 < t_score <= -1.0:
-        return "Osteopenia", "#f1c40f"  # Kuning
-    else:
-        return "Normal", "#2ecc71"  # Hijau
-
-# **Fungsi untuk memproses data tabular**
-def process_tabular_data(input_data, preprocessor):
-    df = pd.DataFrame([input_data])
-    try:
-        transformed_data = preprocessor.transform(df)
-    except Exception as e:
-        st.error(f"Error preprocessing data: {e}")
-        return None
-    return transformed_data
-
-# **Fungsi untuk memproses gambar**
-def process_image(image):
-    try:
-        img = load_img(BytesIO(image.read()), target_size=(224, 224))  # Menggunakan BytesIO untuk streamlit uploader
-        img_array = img_to_array(img) / 255.0  # Normalisasi
-        return np.expand_dims(img_array, axis=0)
-    except Exception as e:
-        st.error(f"Error processing image: {e}")
-        return None
-
-# **Tampilan Streamlit**
-st.set_page_config(page_title="Osteoporosis Diagnosis", page_icon="🦴", layout="wide")
-
-st.markdown(
-    """
-    <style>
-        .stApp {
-            background-color: #ffffff;
-        }
-        .main-title {
-            text-align: center;
-            font-size: 36px;
-            font-weight: bold;
-            color: #2c3e50;
-            padding-bottom: 20px;
-        }
-        .sub-title {
-            text-align: center;
-            font-size: 20px;
-            color: #7f8c8d;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-st.markdown("<h1 class='main-title'>Osteoporosis Diagnosis App 🦴</h1>", unsafe_allow_html=True)
-
-# **Tampilan utama dalam tiga kolom**
-col1, col2, col3 = st.columns([1, 1, 1])
-
-# **Kolom 1: Informasi Pasien**
-with col1:
-    st.subheader("Patient Information")
-    col1a, col1b = st.columns(2)
-    with col1a:
-        age = st.number_input("Age", min_value=0, max_value=120, value=50)
-        bmi = st.number_input("BMI", min_value=10.0, max_value=50.0, value=22.5)
-        gender = st.selectbox("Gender", ["Pilih", "Male", "Female"], index=0)
-        history_fracture = st.selectbox("History of Fracture", ["Pilih", "Yes", "No"], index=0)
-        family_history = st.selectbox("Family History of Osteoporosis", ["Pilih", "Yes", "No"], index=0)
-    with col1b:
-        smoker = st.selectbox("Smoker", ["Pilih", "Yes", "No"], index=0)
-        alcoholic = st.selectbox("Alcoholic", ["Pilih", "Yes", "No"], index=0)
-        estrogen_use = st.selectbox("Estrogen Use", ["Pilih", "Yes", "No"], index=0)
-        diabetic = st.selectbox("Diabetic", ["Pilih", "Yes", "No"], index=0)
-        hypothyroidism = st.selectbox("Hypothyroidism", ["Pilih", "Yes", "No"], index=0)
-
-# **Kolom 2: Upload X-ray Image**
-with col2:
-    st.subheader("Upload X-ray Image")
-    uploaded_image = st.file_uploader("Choose an image file", type=["jpg", "png"])
-    if uploaded_image is not None:
-        st.image(uploaded_image, caption="Uploaded X-ray", width=250)
-
-# **Kolom 3: Hasil Prediksi**
-with col3:
-    st.subheader("Prediction Result")
-    if st.button("Predict"):
-        if uploaded_image is not None:
-            with st.spinner("Loading model & preprocessing..."):
-                model = load_model()
-                preprocessor = load_preprocessor()
-
-            # **Cek apakah semua opsi telah dipilih**
-            if "Pilih" in [gender, history_fracture, family_history, smoker, alcoholic, estrogen_use, diabetic, hypothyroidism]:
-                st.warning("⚠️ Please select all options in the sidebar.")
-            else:
-                tabular_data = {
-                    "Age": age,
-                    "BMI": bmi,
-                    "Gender": gender,
-                    "History of Fracture": history_fracture,
-                    "Family History of Osteoporosis": family_history,
-                    "Smoker": smoker,
-                    "Alcoholic": alcoholic,
-                    "Estrogen Use": estrogen_use,
-                    "Diabetic": diabetic,
-                    "Hypothyroidism": hypothyroidism,
-                }
-                processed_tabular = process_tabular_data(tabular_data, preprocessor)
-                processed_image = process_image(uploaded_image)
-
-                if processed_tabular is not None and processed_image is not None:
-                    with st.spinner("Predicting..."):
-                        y_pred_reg, y_pred_cls_prob = model.predict([processed_image, processed_tabular])
-                        predicted_t_score = y_pred_reg[0][0]
-                        predicted_diagnosis, diagnosis_color = classify_t_score(predicted_t_score)
-
-                        st.success("✅ Prediction Completed!")
-                        st.markdown(f"<h3 style='color:#2c3e50;'>Predicted T-score: {predicted_t_score:.2f}</h3>", unsafe_allow_html=True)
-                        st.markdown(f"<h2 style='color:black;'>Predicted Diagnosis: <span style='color:{diagnosis_color};'>{predicted_diagnosis}</span></h2>", unsafe_allow_html=True)
-                else:
-                    st.warning("⚠️ Failed to process image or tabular data. Please check inputs.")
-        else:
-            st.warning("⚠️ Please upload an image before predicting.")
+def main():
+    st.set_page_config(page_title="Gombalan untuk Sayangku", page_icon="💖", layout="centered")
+    
+    # Background Styling
+    st.markdown(
+        """
+        <style>
+            body {
+                background-color: #FFC0CB;
+            }
+            .stApp {
+                background: linear-gradient(135deg, #FF69B4, #FFB6C1);
+                color: white;
+                text-align: center;
+            }
+            .stButton>button {
+                background-color: #FF1493;
+                color: white;
+                font-size: 18px;
+                border-radius: 15px;
+                padding: 10px 20px;
+            }
+            .stButton>button:hover {
+                background-color: #FF69B4;
+            }
+            .center {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                width: 100%;
+                text-align: center;
+            }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+    
+    st.title("💌 Gombalan Manis untuk Sayangku 💌")
+    st.write("Selamat datang di aplikasi gombalan spesial buatan aku! wkwkwk\n\nKlik tombol di bawah ya sayang untuk mendapatkan gombalan manis dari aku wkwkwk.")
+    
+    # Menampilkan gambar romantis dengan ukuran lebih kecil dan posisi tengah
+    image = Image.open("love.png")  # Pastikan ada gambar love.png di folder yang sama
+    st.markdown("<div class='center'>", unsafe_allow_html=True)
+    st.image(image.resize((400, 400)), use_container_width=True)
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("Kasih Gombalan ✨"):
+            with st.spinner("Mikirin kata-kata paling manis buat Kamu..."):
+                time.sleep(1.5)
+            show_gombalan()
+    
+    # Footer
+    st.markdown("---")
+    st.caption("Dibuat dengan 💖 oleh seseorang yang sangat mencintai Sinta Rona Pratama")
+    
+if __name__ == "__main__":
+    main()
