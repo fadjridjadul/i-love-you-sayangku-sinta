@@ -2,6 +2,6 @@
 streamlit
 numpy
 pandas
-tensorflow
+tensorflow==2.9.0
 joblib
 Pillow
