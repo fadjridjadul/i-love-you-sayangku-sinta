@@ -1,4 +1,4 @@
-# osteoporosis-diagnosis-app
+# aplikasi-gobal-pasangan
 streamlit
 random
 time
